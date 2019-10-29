@@ -29,7 +29,7 @@ def kluisAanvragen():  # nieuwe kluis aanvragen
         if len(beginSchermEntry.get()) == 16:
             for getal in kluisDict:
                 if kluisDict[getal] is not None and kluisDict[getal][1] == int(beginSchermEntry.get()):
-                    beginSchermTitel['text'] = 'U heeft al een kluis'
+                    beginSchermTitel['text'] = 'U heeft al een kluis: nummer ' + str(getal)
                     return
 
             with open('FietsStalling.txt', 'r+') as readFile:
