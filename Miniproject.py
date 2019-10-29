@@ -16,7 +16,7 @@ def dictionary():  # dictionary maken van bestand
             kluisNummer = int(splitLine[0].strip(';'))  # 1ste getal is kluisnummer
             OVNummer = int(splitLine[3].strip('\n'))  # laatste getal is OV nummer
             dateTime = splitLine[1] + ' ' + splitLine[2].strip(',')  # middelste deel is datum en tijd
-            kluisDict[kluisNummer] = [dateTime, OVNummer]  # keys zijn kluisnummers, values zijn OV nummer en datetime
+            kluisDict[kluisNummer] = (dateTime, OVNummer)  # keys zijn kluisnummers, values zijn OV nummer en datetime
         return kluisDict
 
 
@@ -25,23 +25,30 @@ def kluisAanvragen():  # nieuwe kluis aanvragen
     beginSchermTopTitel['text'] = ''
     beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
 
-    with open('FietsStalling.txt', 'r+') as readFile:
-        while True:
-            for kluis in kluisDict:
-                if kluisDict[kluis] is None:  # kluis toewijzen
-                    beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis)
-                    kluisDict[kluis] = [time.strftime('%d-%m-%Y %H:%M'),
-                                        int(beginSchermEntry.get())]  # value wordt tijd en OV
-                    readFile.truncate(0)
-                    readFile.seek(0)
-                    for item in kluisDict:  # bestand updaten (nieuwe kluis toevoegen)
-                        if kluisDict[item] is not None:
-                            readFile.write(str(item) + '; ' + ''.join(str(kluisDict[item])).strip('{}[]\'\'')
-                                           .replace('\'', '') + '\n')
-                    return
+    try:
+        if len(beginSchermEntry.get()) == 16:
 
-            beginSchermTitel['text'] = 'Geen kluizen vrij'
+            with open('FietsStalling.txt', 'r+') as readFile:
+                for kluis in kluisDict:
+                    if kluisDict[kluis] is None:  # kluis toewijzen
+                        beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis)
+                        kluisDict[kluis] = (time.strftime('%d-%m-%Y %H:%M'),
+                                            int(beginSchermEntry.get()))  # value wordt tijd en OV
+                        readFile.truncate(0)
+                        readFile.seek(0)
+                        for item in kluisDict:  # bestand updaten (nieuwe kluis toevoegen)
+                            if kluisDict[item] is not None:
+                                readFile.write(str(item) + '; ' + ''.join(str(kluisDict[item])).strip('{}()\'\'')
+                                               .replace('\'', '') + '\n')
+                        return
+                beginSchermTitel['text'] = 'Geen kluizen vrij'
+                return
+        else:
+            beginSchermTitel['text'] = 'Geen geldige invoer'
             return
+    except ValueError:
+        beginSchermTitel['text'] = 'Geen geldige invoer'
+        return
 
 
 def kluisOpenen():  # kluis tijdelijk openen
