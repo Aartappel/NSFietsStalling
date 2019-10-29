@@ -25,7 +25,7 @@ def kluisAanvragen():  # nieuwe kluis aanvragen
     beginSchermTopTitel['text'] = ''
     beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
 
-    # try:
+    try:
     if len(beginSchermEntry.get()) == 16:
         for getal in kluisDict:
             if kluisDict[getal] is not None and kluisDict[getal][1] == int(beginSchermEntry.get()):
@@ -51,7 +51,9 @@ def kluisAanvragen():  # nieuwe kluis aanvragen
     else:
         beginSchermTitel['text'] = 'Geen geldige invoer'
         return
-
+except ValueError:
+    beginSchermTitel['text'] = 'Geen geldige invoer'
+    return
 
 def kluisOpenen():  # kluis tijdelijk openen
     kluisDict = dictionary()
