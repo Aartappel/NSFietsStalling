@@ -27,6 +27,10 @@ def kluisAanvragen():  # nieuwe kluis aanvragen
 
     try:
         if len(beginSchermEntry.get()) == 16:
+            for getal in kluisDict:
+                if kluisDict[getal] is not None and kluisDict[getal][1] == int(beginSchermEntry.get()):
+                    beginSchermTitel['text'] = 'U heeft al een kluis'
+                    return
 
             with open('FietsStalling.txt', 'r+') as readFile:
                 for kluis in kluisDict:
@@ -34,6 +38,8 @@ def kluisAanvragen():  # nieuwe kluis aanvragen
                         beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis)
                         kluisDict[kluis] = (time.strftime('%d-%m-%Y %H:%M'),
                                             int(beginSchermEntry.get()))  # value wordt tijd en OV
+
+
                         readFile.truncate(0)
                         readFile.seek(0)
                         for item in kluisDict:  # bestand updaten (nieuwe kluis toevoegen)
