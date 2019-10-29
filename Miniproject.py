@@ -25,34 +25,30 @@ def kluisAanvragen():  # nieuwe kluis aanvragen
     beginSchermTopTitel['text'] = ''
     beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
 
-    try:
-        if len(beginSchermEntry.get()) == 16:
-            for getal in kluisDict:
-                if kluisDict[getal] is not None and kluisDict[getal][1] == int(beginSchermEntry.get()):
-                    beginSchermTitel['text'] = 'U heeft al een kluis: nummer ' + str(getal)
-                    return
-
-            with open('FietsStalling.txt', 'r+') as readFile:
-                for kluis in kluisDict:
-                    if kluisDict[kluis] is None:  # kluis toewijzen
-                        beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis)
-                        kluisDict[kluis] = (time.strftime('%d-%m-%Y %H:%M'),
-                                            int(beginSchermEntry.get()))  # value wordt tijd en OV
-
-
-                        readFile.truncate(0)
-                        readFile.seek(0)
-                        for item in kluisDict:  # bestand updaten (nieuwe kluis toevoegen)
-                            if kluisDict[item] is not None:
-                                readFile.write(str(item) + '; ' + ''.join(str(kluisDict[item])).strip('{}()\'\'')
-                                               .replace('\'', '') + '\n')
-                        return
-                beginSchermTitel['text'] = 'Geen kluizen vrij'
+    # try:
+    if len(beginSchermEntry.get()) == 16:
+        for getal in kluisDict:
+            if kluisDict[getal] is not None and kluisDict[getal][1] == int(beginSchermEntry.get()):
+                beginSchermTitel['text'] = 'U heeft al een kluis: nummer ' + str(getal)
                 return
-        else:
-            beginSchermTitel['text'] = 'Geen geldige invoer'
+
+        with open('FietsStalling.txt', 'r+') as readFile:
+            for kluis in kluisDict:
+                if kluisDict[kluis] is None:  # kluis toewijzen
+                    beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis)
+                    kluisDict[kluis] = (time.strftime('%d-%m-%Y %H:%M'),
+                                        int(beginSchermEntry.get()))  # value wordt tijd en OV
+
+                    readFile.truncate(0)
+                    readFile.seek(0)
+                    for item in kluisDict:  # bestand updaten (nieuwe kluis toevoegen)
+                        if kluisDict[item] is not None:
+                            readFile.write(str(item) + '; ' + ''.join(str(kluisDict[item])).strip('{}()\'\'')
+                                           .replace('\'', '') + '\n')
+                    return
+            beginSchermTitel['text'] = 'Geen kluizen vrij'
             return
-    except ValueError:
+    else:
         beginSchermTitel['text'] = 'Geen geldige invoer'
         return
 
