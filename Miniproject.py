@@ -150,37 +150,43 @@ def stalTijd(begintijd):  # prijs berekenen
     secMin = secondeVerschil / 60  # seconden naar minuten omrekenen
     minuten = int(dagMin + secMin)  # totaal aantal minuten
     uurMin = str(timedelta(minutes=minuten))[:-3]
-    if 'days' in uurMin:
-        tijdSplit = uurMin.split(' ')
-        urenMinuten = tijdSplit[2].split(':')
-        dagen = tijdSplit[0]
-        uren = urenMinuten[0]
-        minuten = urenMinuten[1].lstrip('0')
-        if minuten == '1':
-            tijdsDuur = 'Je fiets is ' + dagen + ' dagen, ' + uren + ' uur en ' + minuten + ' minuut gestald'
-        else:
-            tijdsDuur = 'Je fiets is ' + dagen + ' dagen, ' + uren + ' uur en ' + minuten + ' minuten gestald'
-        return tijdsDuur
-    elif 'day' in uurMin:
-        tijdSplit = uurMin.split(' ')
-        urenMinuten = tijdSplit[2].split(':')
-        dagen = tijdSplit[0]
-        uren = urenMinuten[0]
-        minuten = urenMinuten[1].lstrip('0')
-        if minuten == '1':
-            tijdsDuur = 'Je fiets is ' + dagen + ' dag, ' + uren + ' uur en ' + minuten + ' minuut gestald'
-        else:
-            tijdsDuur = 'Je fiets is ' + dagen + ' dag, ' + uren + ' uur en ' + minuten + ' minuten gestald'
-        return tijdsDuur
-    else:
+    if 'day' not in uurMin:
         tijdSplit = uurMin.split(':')
         uren = tijdSplit[0]
         minuten = tijdSplit[1].lstrip('0')
-        if minuten == '1':
-            tijdsDuur = 'Je fiets is ' + uren + ' uur en ' + minuten + ' minuut gestald'
+        if uren == '0':
+            uurTekst = ''
+            uren = ''
         else:
-            tijdsDuur = 'Je fiets is ' + uren + ' uur en ' + minuten + ' minuten gestald'
+            uurTekst = ' uur en '
+        if minuten == '1':
+            tijdsDuur = 'Je fiets is ' + uren + uurTekst + minuten + ' minuut gestald'
+        else:
+            tijdsDuur = 'Je fiets is ' + uren + uurTekst + minuten + ' minuten gestald'
         return tijdsDuur
+    else:
+        tijdSplit = uurMin.split(' ')
+        urenMinuten = tijdSplit[2].split(':')
+        dagen = tijdSplit[0]
+        uren = urenMinuten[0]
+        minuten = urenMinuten[1].lstrip('0')
+        if uren == '0':
+            uurTekst = ''
+            uren = ''
+        else:
+            uurTekst = ' uur en '
+        if 'days' in uurMin:
+            if minuten == '1':
+                tijdsDuur = 'Je fiets is ' + dagen + ' dagen, ' + uren + uurTekst + minuten + ' minuut gestald'
+            else:
+                tijdsDuur = 'Je fiets is ' + dagen + ' dagen, ' + uren + uurTekst + minuten + ' minuten gestald'
+            return tijdsDuur
+        else:
+            if minuten == '1':
+                tijdsDuur = 'Je fiets is ' + dagen + ' dag, ' + uren + uurTekst + minuten + ' minuut gestald'
+            else:
+                tijdsDuur = 'Je fiets is ' + dagen + ' dag, ' + uren + uurTekst + minuten + ' minuten gestald'
+            return tijdsDuur
 
 
 def tijd(update, context):  # tijd opvragen bot
