@@ -58,7 +58,7 @@ except ValueError:
 def kluisOpenen():  # kluis tijdelijk openen
     kluisDict = dictionary()
     beginSchermTopTitel['text'] = ''
-    beginSchermTitel['text'] = beginSchermEntry.get()
+    #beginSchermTitel['text'] = beginSchermEntry.get()
     beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
 
     while True:
