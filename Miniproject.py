@@ -26,52 +26,51 @@ def kluisAanvragen():  # nieuwe kluis aanvragen
     beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
 
     try:
-    if len(beginSchermEntry.get()) == 16:
-        for getal in kluisDict:
-            if kluisDict[getal] is not None and kluisDict[getal][1] == int(beginSchermEntry.get()):
-                beginSchermTitel['text'] = 'U heeft al een kluis: nummer ' + str(getal)
-                return
-
-        with open('FietsStalling.txt', 'r+') as readFile:
-            for kluis in kluisDict:
-                if kluisDict[kluis] is None:  # kluis toewijzen
-                    beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis)
-                    kluisDict[kluis] = (time.strftime('%d-%m-%Y %H:%M'),
-                                        int(beginSchermEntry.get()))  # value wordt tijd en OV
-
-                    readFile.truncate(0)
-                    readFile.seek(0)
-                    for item in kluisDict:  # bestand updaten (nieuwe kluis toevoegen)
-                        if kluisDict[item] is not None:
-                            readFile.write(str(item) + '; ' + ''.join(str(kluisDict[item])).strip('{}()\'\'')
-                                           .replace('\'', '') + '\n')
+        if len(beginSchermEntry.get()) == 16:
+            for getal in kluisDict:
+                if kluisDict[getal] is not None and kluisDict[getal][1] == int(beginSchermEntry.get()):
+                    beginSchermTitel['text'] = 'U heeft al een kluis: nummer ' + str(getal)
                     return
-            beginSchermTitel['text'] = 'Geen kluizen vrij'
+
+            with open('FietsStalling.txt', 'r+') as readFile:
+                for kluis in kluisDict:
+                    if kluisDict[kluis] is None:  # kluis toewijzen
+                        beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis)
+                        kluisDict[kluis] = (time.strftime('%d-%m-%Y %H:%M'),
+                                            int(beginSchermEntry.get()))  # value wordt tijd en OV
+
+                        readFile.truncate(0)
+                        readFile.seek(0)
+                        for item in kluisDict:  # bestand updaten (nieuwe kluis toevoegen)
+                            if kluisDict[item] is not None:
+                                readFile.write(str(item) + '; ' + ''.join(str(kluisDict[item])).strip('{}()\'\'')
+                                               .replace('\'', '') + '\n')
+                        return
+                beginSchermTitel['text'] = 'Geen kluizen vrij'
+                return
+        else:
+            beginSchermTitel['text'] = 'Geen geldige invoer'
             return
-    else:
+    except ValueError:
         beginSchermTitel['text'] = 'Geen geldige invoer'
         return
-except ValueError:
-    beginSchermTitel['text'] = 'Geen geldige invoer'
-    return
+
 
 def kluisOpenen():  # kluis tijdelijk openen
     kluisDict = dictionary()
     beginSchermTopTitel['text'] = ''
-    #beginSchermTitel['text'] = beginSchermEntry.get()
     beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
 
-    while True:
-        for kluis in kluisDict:
-            try:
-                if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
-                    beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis) + ' is geopend'
-                    return
-            except ValueError:
-                beginSchermTitel['text'] = 'Geen geldige invoer'
+    for kluis in kluisDict:
+        try:
+            if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
+                beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis) + ' is geopend'
                 return
-        beginSchermTitel['text'] = 'Dit OV nummer is onbekend'
-        return
+        except ValueError:
+            beginSchermTitel['text'] = 'Geen geldige invoer'
+            return
+    beginSchermTitel['text'] = 'Dit OV nummer is onbekend'
+    return
 
 
 def kluisVrijgeven():  # kluis vrijgeven
@@ -80,42 +79,40 @@ def kluisVrijgeven():  # kluis vrijgeven
     beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
 
     with open('FietsStalling.txt', 'r+') as readFile:
-        while True:
-            for kluis in kluisDict:
-                try:
-                    if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
-                        kluisDict[kluis] = None
-                        beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis) + ' is vrijgegeven'
-                        readFile.truncate(0)
-                        readFile.seek(0)
-                        for item in kluisDict:  # bestand updaten (vrijgegeven kluis verwijderen)
-                            if kluisDict[item] is not None:
-                                readFile.write(str(item) + '; ' + ''.join(str(kluisDict[item])).strip('{}[]\'\'')
-                                               .replace('\'', '') + '\n')
-                        return
-                except ValueError:
-                    beginSchermTitel['text'] = 'Geen geldige invoer'
+        for kluis in kluisDict:
+            try:
+                if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
+                    kluisDict[kluis] = None
+                    beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis) + ' is vrijgegeven'
+                    readFile.truncate(0)
+                    readFile.seek(0)
+                    for item in kluisDict:  # bestand updaten (vrijgegeven kluis verwijderen)
+                        if kluisDict[item] is not None:
+                            readFile.write(str(item) + '; ' + ''.join(str(kluisDict[item])).strip('{}()\'\'')
+                                           .replace('\'', '') + '\n')
                     return
-            beginSchermTitel['text'] = 'Dit OV nummer is onbekend'
-            return
+            except ValueError:
+                beginSchermTitel['text'] = 'Geen geldige invoer'
+                return
+        beginSchermTitel['text'] = 'Dit OV nummer is onbekend'
+        return
 
 
 def kluisInfo():  # huidige kosten opvragen
     kluisDict = dictionary()
     beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
 
-    while True:
-        for kluis in kluisDict:
-            try:
-                if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
-                    beginSchermTopTitel['text'] = fietsStalTijd(kluisDict[kluis][0])
-                    beginSchermTitel['text'] = 'De huidige kosten zijn €' + str(prijs(kluisDict[kluis][0]))
-                    return
-            except ValueError:
-                beginSchermTitel['text'] = 'Geen geldige invoer'
-                return beginSchermTitel['text']
-        beginSchermTitel['text'] = 'Dit OV nummer is onbekend'
-        return
+    for kluis in kluisDict:
+        try:
+            if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
+                beginSchermTopTitel['text'] = fietsStalTijd(kluisDict[kluis][0])
+                beginSchermTitel['text'] = 'De huidige kosten zijn €' + str(prijs(kluisDict[kluis][0]))
+                return
+        except ValueError:
+            beginSchermTitel['text'] = 'Geen geldige invoer'
+            return beginSchermTitel['text']
+    beginSchermTitel['text'] = 'Dit OV nummer is onbekend'
+    return
 
 
 def prijs(begintijd):  # prijs berekenen
@@ -134,15 +131,14 @@ def fietsStalTijd(ovnummer):  # tijdsduur opvragen
     kluisDict = dictionary()
     beginSchermTopTitel['text'] = ''
 
-    while True:
-        for kluis in kluisDict:
-            try:
-                if kluisDict[kluis] is not None and ovnummer in kluisDict[kluis]:  # zoek ov nummer in dictionary
-                    huidigeTijdsDuur = str(stalTijd(kluisDict[kluis][0]))  # bereken tijdsduur bij ov nummer
-                    return str(huidigeTijdsDuur)
-            except ValueError:
-                huidigeTijdsDuur = 'Geen geldige invoer'
+    for kluis in kluisDict:
+        try:
+            if kluisDict[kluis] is not None and ovnummer in kluisDict[kluis]:  # zoek ov nummer in dictionary
+                huidigeTijdsDuur = str(stalTijd(kluisDict[kluis][0]))  # bereken tijdsduur bij ov nummer
                 return str(huidigeTijdsDuur)
+        except ValueError:
+            huidigeTijdsDuur = 'Geen geldige invoer'
+            return str(huidigeTijdsDuur)
 
 
 def stalTijd(begintijd):  # prijs berekenen
@@ -159,14 +155,31 @@ def stalTijd(begintijd):  # prijs berekenen
         urenMinuten = tijdSplit[2].split(':')
         dagen = tijdSplit[0]
         uren = urenMinuten[0]
-        minuten = urenMinuten[1]
-        tijdsDuur = 'Je fiets is ' + dagen + ' dagen, ' + uren + ' uur en ' + minuten + ' minuten gestald'
+        minuten = urenMinuten[1].lstrip('0')
+        if minuten == '1':
+            tijdsDuur = 'Je fiets is ' + dagen + ' dagen, ' + uren + ' uur en ' + minuten + ' minuut gestald'
+        else:
+            tijdsDuur = 'Je fiets is ' + dagen + ' dagen, ' + uren + ' uur en ' + minuten + ' minuten gestald'
+        return tijdsDuur
+    elif 'day' in uurMin:
+        tijdSplit = uurMin.split(' ')
+        urenMinuten = tijdSplit[2].split(':')
+        dagen = tijdSplit[0]
+        uren = urenMinuten[0]
+        minuten = urenMinuten[1].lstrip('0')
+        if minuten == '1':
+            tijdsDuur = 'Je fiets is ' + dagen + ' dag, ' + uren + ' uur en ' + minuten + ' minuut gestald'
+        else:
+            tijdsDuur = 'Je fiets is ' + dagen + ' dag, ' + uren + ' uur en ' + minuten + ' minuten gestald'
         return tijdsDuur
     else:
         tijdSplit = uurMin.split(':')
         uren = tijdSplit[0]
-        minuten = tijdSplit[1]
-        tijdsDuur = 'Je fiets is ' + uren + ' uur en ' + minuten + ' minuten gestald'
+        minuten = tijdSplit[1].lstrip('0')
+        if minuten == '1':
+            tijdsDuur = 'Je fiets is ' + uren + ' uur en ' + minuten + ' minuut gestald'
+        else:
+            tijdsDuur = 'Je fiets is ' + uren + ' uur en ' + minuten + ' minuten gestald'
         return tijdsDuur
 
 
@@ -185,19 +198,18 @@ def prijsTg(update, context):  # prijs opvragen bot
 def kluisInfoTg(ovnummer):  # kosten opvragen met bot
     kluisDict = dictionary()
 
-    while True:
-        for kluis in kluisDict:
-            try:
-                if kluisDict[kluis] is not None and ovnummer in kluisDict[kluis]:
-                    huidigeKosten = 'De huidige kosten zijn €' + str(prijs(kluisDict[kluis][0]))
-                    return huidigeKosten
-            except ValueError:
-                huidigeKosten = 'Geen geldige invoer'
+    for kluis in kluisDict:
+        try:
+            if kluisDict[kluis] is not None and ovnummer in kluisDict[kluis]:
+                huidigeKosten = 'De huidige kosten zijn €' + str(prijs(kluisDict[kluis][0]))
                 return huidigeKosten
+        except ValueError:
+            huidigeKosten = 'Geen geldige invoer'
+            return huidigeKosten
 
 
 def unknown(update, context):  # onbekend bot commando
-    context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, I didn't understand that command.")
+    context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, dat commando is onbekend.")
 
 
 def toonBeginScherm():  # beginscherm herladen
