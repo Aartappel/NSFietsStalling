@@ -63,7 +63,7 @@ def kluisOpenen():  # kluis tijdelijk openen
 
     for kluis in kluisDict:
         try:
-            if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
+            if int(beginSchermEntry.get()) in kluisDict[kluis]:
                 beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis) + ' is geopend'
                 return
         except ValueError:
@@ -81,7 +81,7 @@ def kluisVrijgeven():  # kluis vrijgeven
     with open('FietsStalling.txt', 'r+') as readFile:
         for kluis in kluisDict:
             try:
-                if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
+                if int(beginSchermEntry.get()) in kluisDict[kluis]:
                     kluisDict[kluis] = None
                     beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis) + ' is vrijgegeven'
                     readFile.truncate(0)
@@ -104,7 +104,7 @@ def kluisInfo():  # huidige kosten opvragen
 
     for kluis in kluisDict:
         try:
-            if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
+            if int(beginSchermEntry.get()) in kluisDict[kluis]:
                 beginSchermTopTitel['text'] = fietsStalTijd(kluisDict[kluis][0])
                 beginSchermTitel['text'] = 'De huidige kosten zijn €' + str(prijs(kluisDict[kluis][0]))
                 return
@@ -133,7 +133,7 @@ def fietsStalTijd(ovnummer):  # tijdsduur opvragen
 
     for kluis in kluisDict:
         try:
-            if kluisDict[kluis] is not None and ovnummer in kluisDict[kluis]:  # zoek ov nummer in dictionary
+            if ovnummer in kluisDict[kluis]:  # zoek ov nummer in dictionary
                 huidigeTijdsDuur = str(stalTijd(kluisDict[kluis][0]))  # bereken tijdsduur bij ov nummer
                 return str(huidigeTijdsDuur)
         except ValueError:
@@ -153,13 +153,10 @@ def stalTijd(begintijd):  # prijs berekenen
     if 'day' not in uurMin:
         tijdSplit = uurMin.split(':')
         uren = tijdSplit[0]
-        print(tijdSplit[1])
         if tijdSplit[1] != '00':
             minuten = tijdSplit[1].lstrip('0')
-            print('strip')
         else:
             minuten = tijdSplit[1][:1]
-            print('minuten')
         if uren == '0':
             uurTekst = ''
             uren = ''
@@ -203,7 +200,7 @@ def kluisInfoTg(ovnummer):  # kosten opvragen met bot
 
     for kluis in kluisDict:
         try:
-            if kluisDict[kluis] is not None and ovnummer in kluisDict[kluis]:
+            if ovnummer in kluisDict[kluis]:
                 huidigeKosten = 'De huidige kosten zijn €' + str(prijs(kluisDict[kluis][0]))
                 return huidigeKosten
         except ValueError:
@@ -267,6 +264,23 @@ beginSchermTerug = Button(master=beginScherm,
                           width=7,
                           height=2,
                           command=toonBeginScherm)
+import random
+
+
+def testKnop():
+    beginSchermEntry.delete(0, END)
+    beginSchermEntry.insert(0, str(random.randrange(1000000000000000, 9999999999999999)))
+
+
+beginSchermTest = Button(master=beginScherm,
+                         text='Test',
+                         background='#003091',
+                         foreground='white',
+                         font=('Arial', '12', 'bold'),
+                         width=7,
+                         height=2,
+                         command=testKnop)
+beginSchermTest.grid(pady=3, padx=(10, 10), sticky='e', row=1, column=2)
 
 beginSchermTopTitel = Label(master=beginScherm,
                             text='',
