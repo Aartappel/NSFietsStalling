@@ -29,7 +29,7 @@ def kluisAanvragen():  # nieuwe kluis aanvragen
         if len(beginSchermEntry.get()) == 16:
             for getal in kluisDict:
                 if kluisDict[getal] is not None and kluisDict[getal][1] == int(beginSchermEntry.get()):
-                    beginSchermTitel['text'] = 'U heeft al een kluis: nummer ' + str(getal)
+                    beginSchermTitel['text'] = 'Je hebt al een kluis: nummer ' + str(getal)
                     return
 
             with open('FietsStalling.txt', 'r+') as readFile:
@@ -110,7 +110,7 @@ def kluisInfo():  # huidige kosten opvragen
                 return
         except ValueError:
             beginSchermTitel['text'] = 'Geen geldige invoer'
-            return beginSchermTitel['text']
+            return
     beginSchermTitel['text'] = 'Dit OV nummer is onbekend'
     return
 
@@ -153,7 +153,13 @@ def stalTijd(begintijd):  # prijs berekenen
     if 'day' not in uurMin:
         tijdSplit = uurMin.split(':')
         uren = tijdSplit[0]
-        minuten = tijdSplit[1].lstrip('0')
+        print(tijdSplit[1])
+        if tijdSplit[1] != '00':
+            minuten = tijdSplit[1].lstrip('0')
+            print('strip')
+        else:
+            minuten = tijdSplit[1][:1]
+            print('minuten')
         if uren == '0':
             uurTekst = ''
             uren = ''
@@ -169,7 +175,10 @@ def stalTijd(begintijd):  # prijs berekenen
         urenMinuten = tijdSplit[2].split(':')
         dagen = tijdSplit[0]
         uren = urenMinuten[0]
-        minuten = urenMinuten[1].lstrip('0')
+        if urenMinuten[1] != '00':
+            minuten = urenMinuten[1].lstrip('0')
+        else:
+            minuten = urenMinuten[1][:1]
         if uren == '0':
             uurTekst = ''
             uren = ''
@@ -189,18 +198,6 @@ def stalTijd(begintijd):  # prijs berekenen
             return tijdsDuur
 
 
-def tijd(update, context):  # tijd opvragen bot
-    msgContent = str(update['message']['text']).split(' ')
-    OVNummer = int(msgContent[1])
-    context.bot.send_message(chat_id=update.effective_chat.id, text=fietsStalTijd(OVNummer))
-
-
-def prijsTg(update, context):  # prijs opvragen bot
-    msgContent = str(update['message']['text']).split(' ')
-    OVNummer = int(msgContent[1])
-    context.bot.send_message(chat_id=update.effective_chat.id, text=kluisInfoTg(OVNummer))
-
-
 def kluisInfoTg(ovnummer):  # kosten opvragen met bot
     kluisDict = dictionary()
 
@@ -212,6 +209,18 @@ def kluisInfoTg(ovnummer):  # kosten opvragen met bot
         except ValueError:
             huidigeKosten = 'Geen geldige invoer'
             return huidigeKosten
+
+
+def tijd(update, context):  # tijd opvragen bot
+    msgContent = str(update['message']['text']).split(' ')
+    OVNummer = int(msgContent[1])
+    context.bot.send_message(chat_id=update.effective_chat.id, text=fietsStalTijd(OVNummer))
+
+
+def prijsTg(update, context):  # prijs opvragen bot
+    msgContent = str(update['message']['text']).split(' ')
+    OVNummer = int(msgContent[1])
+    context.bot.send_message(chat_id=update.effective_chat.id, text=kluisInfoTg(OVNummer))
 
 
 def unknown(update, context):  # onbekend bot commando
