@@ -63,7 +63,7 @@ def kluisOpenen():  # kluis tijdelijk openen
 
     for kluis in kluisDict:
         try:
-            if int(beginSchermEntry.get()) in kluisDict[kluis]:
+            if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
                 beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis) + ' is geopend'
                 beginSchermEntry.delete(0, END)
                 return
@@ -82,7 +82,7 @@ def kluisVrijgeven():  # kluis vrijgeven
     with open('FietsStalling.txt', 'r+') as readFile:
         for kluis in kluisDict:
             try:
-                if int(beginSchermEntry.get()) in kluisDict[kluis]:
+                if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
                     kluisDict[kluis] = None
                     beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis) + ' is vrijgegeven'
                     readFile.truncate(0)
@@ -106,7 +106,7 @@ def kluisInfo():  # huidige kosten opvragen
 
     for kluis in kluisDict:
         try:
-            if int(beginSchermEntry.get()) in kluisDict[kluis]:
+            if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
                 beginSchermTopTitel['text'] = fietsStalTijd(kluisDict[kluis][0])
                 beginSchermTitel['text'] = 'De huidige kosten zijn €' + str(prijs(kluisDict[kluis][0]))
                 beginSchermEntry.delete(0, END)
@@ -136,7 +136,7 @@ def fietsStalTijd(ovnummer):  # tijdsduur opvragen
 
     for kluis in kluisDict:
         try:
-            if ovnummer in kluisDict[kluis]:  # zoek ov nummer in dictionary
+            if kluisDict[kluis] is not None and ovnummer in kluisDict[kluis]:  # zoek ov nummer in dictionary
                 huidigeTijdsDuur = str(stalTijd(kluisDict[kluis][0]))  # bereken tijdsduur bij ov nummer
                 return str(huidigeTijdsDuur)
         except ValueError:
@@ -239,7 +239,7 @@ def kluisInfoTg(ovnummer):  # kosten opvragen met bot
 
     for kluis in kluisDict:
         try:
-            if ovnummer in kluisDict[kluis]:
+            if kluisDict[kluis] is not None and ovnummer in kluisDict[kluis]:
                 huidigeKosten = 'De huidige kosten zijn €' + str(prijs(kluisDict[kluis][0]))
                 return huidigeKosten
         except ValueError:
