@@ -38,13 +38,13 @@ def kluisAanvragen():  # nieuwe kluis aanvragen
                         beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis)
                         kluisDict[kluis] = (time.strftime('%d-%m-%Y %H:%M'),
                                             int(beginSchermEntry.get()))  # value wordt tijd en OV
-
                         readFile.truncate(0)
                         readFile.seek(0)
                         for item in kluisDict:  # bestand updaten (nieuwe kluis toevoegen)
                             if kluisDict[item] is not None:
                                 readFile.write(str(item) + '; ' + ''.join(str(kluisDict[item])).strip('{}()\'\'')
                                                .replace('\'', '') + '\n')
+                        beginSchermEntry.delete(0, END)
                         return
                 beginSchermTitel['text'] = 'Geen kluizen vrij'
                 return
@@ -65,6 +65,7 @@ def kluisOpenen():  # kluis tijdelijk openen
         try:
             if int(beginSchermEntry.get()) in kluisDict[kluis]:
                 beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis) + ' is geopend'
+                beginSchermEntry.delete(0, END)
                 return
         except ValueError:
             beginSchermTitel['text'] = 'Geen geldige invoer'
@@ -90,6 +91,7 @@ def kluisVrijgeven():  # kluis vrijgeven
                         if kluisDict[item] is not None:
                             readFile.write(str(item) + '; ' + ''.join(str(kluisDict[item])).strip('{}()\'\'')
                                            .replace('\'', '') + '\n')
+                    beginSchermEntry.delete(0, END)
                     return
             except ValueError:
                 beginSchermTitel['text'] = 'Geen geldige invoer'
@@ -107,6 +109,7 @@ def kluisInfo():  # huidige kosten opvragen
             if int(beginSchermEntry.get()) in kluisDict[kluis]:
                 beginSchermTopTitel['text'] = fietsStalTijd(kluisDict[kluis][0])
                 beginSchermTitel['text'] = 'De huidige kosten zijn €' + str(prijs(kluisDict[kluis][0]))
+                beginSchermEntry.delete(0, END)
                 return
         except ValueError:
             beginSchermTitel['text'] = 'Geen geldige invoer'
@@ -195,6 +198,42 @@ def stalTijd(begintijd):  # prijs berekenen
             return tijdsDuur
 
 
+def beheerderOpenen():
+    beheerderEntry.get()
+    kluisDict = dictionary()
+
+    try:
+        if kluisDict[int(beheerderEntry.get())] is not None:
+            beheerderTitel['text'] = 'Kluis nummer ' + beheerderEntry.get() + ' is geopend'
+        else:
+            beheerderTitel['text'] = 'Deze kluis is niet bezet'
+        return
+    except ValueError:
+        beheerderTitel['text'] = 'Geen geldige invoer'
+        return
+
+
+def beheerderVrijgeven():
+    kluisDict = dictionary()
+    with open('FietsStalling.txt', 'r+') as readFile:
+        try:
+            if kluisDict[int(beheerderEntry.get())] is not None:
+                kluisDict[int(beheerderEntry.get())] = None
+                beheerderTitel['text'] = 'Kluis nummer ' + beheerderEntry.get() + ' is vrijgegeven'
+                readFile.truncate(0)
+                readFile.seek(0)
+                for item in kluisDict:  # bestand updaten (vrijgegeven kluis verwijderen)
+                    if kluisDict[item] is not None:
+                        readFile.write(str(item) + '; ' + ''.join(str(kluisDict[item])).strip('{}()\'\'')
+                                       .replace('\'', '') + '\n')
+                return
+            else:
+                beheerderTitel['text'] = 'Deze kluis is niet bezet'
+        except ValueError:
+            beheerderTitel['text'] = 'Geen geldige invoer'
+            return
+
+
 def kluisInfoTg(ovnummer):  # kosten opvragen met bot
     kluisDict = dictionary()
 
@@ -226,10 +265,20 @@ def unknown(update, context):  # onbekend bot commando
 
 def toonBeginScherm():  # beginscherm herladen
     beginSchermTerug.grid_forget()
+    beheerderScherm.grid_forget()
     beginSchermTopTitel['text'] = ''
     beginSchermTitel['text'] = 'Welkom bij NS'
     beginSchermEntry.delete(0, END)
     beginScherm.grid()
+
+
+def toonBeheerderScherm():  # beheerderscherm tonen
+    if beginSchermEntry.get() == '1234':
+        beginScherm.grid_forget()
+        beheerderScherm.grid()
+        beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
+    else:
+        toonBeginScherm()
 
 
 updater = Updater(token='966523720:AAH9N8uV6r3ptO-Jhr2L8u-sRQVApa6VqIU', use_context=True)
@@ -254,7 +303,6 @@ beginScherm = Frame(master=root,
                     bg='#FCC63F',
                     width=750,
                     height=500)
-beginScherm.grid()
 
 beginSchermTerug = Button(master=beginScherm,
                           text='Terug',
@@ -264,6 +312,7 @@ beginSchermTerug = Button(master=beginScherm,
                           width=7,
                           height=2,
                           command=toonBeginScherm)
+
 import random
 
 
@@ -271,6 +320,16 @@ def testKnop():
     beginSchermEntry.delete(0, END)
     beginSchermEntry.insert(0, str(random.randrange(1000000000000000, 9999999999999999)))
 
+
+beginSchermBeheerKnop = Button(master=beginScherm,
+                               text='Beheerder',
+                               background='#003091',
+                               foreground='white',
+                               font=('Arial', '10', 'bold'),
+                               width=8,
+                               height=2,
+                               command=toonBeheerderScherm)
+beginSchermBeheerKnop.grid(pady=3, padx=(10, 10), sticky='n', row=0, column=0, columnspan=3)
 
 beginSchermTest = Button(master=beginScherm,
                          text='Test',
@@ -350,6 +409,54 @@ beginSchermInfo = Button(master=beginScherm,  # knop zoeken
                          height=2,
                          command=kluisInfo)
 beginSchermInfo.grid(pady=3, padx=3, row=5, column=2)
+
+beheerderScherm = Frame(master=root,
+                        bg='#FCC63F',
+                        width=750,
+                        height=500)
+
+beheerderTerug = Button(master=beheerderScherm,
+                        text='Terug',
+                        background='#003091',
+                        foreground='white',
+                        font=('Arial', '12', 'bold'),
+                        width=5,
+                        height=2,
+                        command=toonBeginScherm)
+beheerderTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1, columnspan=3)
+
+beheerderTitel = Label(master=beheerderScherm,
+                       text='',
+                       background='#FCC63F',
+                       foreground='#003091',
+                       font=('Arial', '24', 'bold'),
+                       width=25,
+                       height=4)
+beheerderTitel.grid(row=1, column=0, columnspan=3)
+
+beheerderEntry = Entry(master=beheerderScherm,  # entry veld
+                       font=('Arial', '20', 'bold'))
+beheerderEntry.grid(padx=111, pady=(6, 20), row=3, column=0, columnspan=3, ipady=5)
+
+beheerderKluisOpenen = Button(master=beheerderScherm,
+                              text='Kluis openen',
+                              background='#003091',
+                              foreground='white',
+                              font=('Arial', '18', 'bold'),
+                              width=20,
+                              height=2,
+                              command=beheerderOpenen)
+beheerderKluisOpenen.grid(pady=3, padx=3, row=5, column=1)
+
+beheerderKluisVrijgeven = Button(master=beheerderScherm,
+                                 text='Kluis vrijgeven',
+                                 background='#003091',
+                                 foreground='white',
+                                 font=('Arial', '18', 'bold'),
+                                 width=20,
+                                 height=2,
+                                 command=beheerderVrijgeven)
+beheerderKluisVrijgeven.grid(pady=3, padx=3, row=5, column=2)
 
 toonBeginScherm()
 root.mainloop()
