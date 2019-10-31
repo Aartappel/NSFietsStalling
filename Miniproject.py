@@ -7,20 +7,22 @@ import logging
 from telegram.ext import MessageHandler, Filters
 
 
-def dictionary():  # dictionary maken van bestand
+def dictionary():
+    """Maak een dictionary van de regels in het bestand."""
     kluisDict = dict.fromkeys(range(1, 21))
 
     with open('FietsStalling.txt', 'r+') as readFile:
         for line in readFile:  # kluizen uit bestand lezen
             splitLine = line.split(' ')  # regels opdelen
-            kluisNummer = int(splitLine[0].strip(';'))  # 1ste getal is kluisnummer
+            kluisNummer = int(splitLine[0].strip(';'))  # eerste getal is kluisnummer
             OVNummer = int(splitLine[3].strip('\n'))  # laatste getal is OV nummer
             dateTime = splitLine[1] + ' ' + splitLine[2].strip(',')  # middelste deel is datum en tijd
             kluisDict[kluisNummer] = (dateTime, OVNummer)  # keys zijn kluisnummers, values zijn OV nummer en datetime
         return kluisDict
 
 
-def kluisAanvragen():  # nieuwe kluis aanvragen
+def kluisAanvragen():
+    """Kluis associeren met OV nummer en huidige datum en tijd en naar bestand schrijven."""
     kluisDict = dictionary()
     beginSchermTopTitel['text'] = ''
     beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
@@ -56,14 +58,16 @@ def kluisAanvragen():  # nieuwe kluis aanvragen
         return
 
 
-def kluisOpenen():  # kluis tijdelijk openen
+def kluisOpenen():
+    """Kluis geassocieerd met OV nummer tijdelijk openen."""
     kluisDict = dictionary()
     beginSchermTopTitel['text'] = ''
     beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
 
     for kluis in kluisDict:
         try:
-            if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
+            if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:  # kluis zoeken in
+                # dictionary
                 beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis) + ' is geopend'
                 beginSchermEntry.delete(0, END)
                 return
@@ -74,7 +78,8 @@ def kluisOpenen():  # kluis tijdelijk openen
     return
 
 
-def kluisVrijgeven():  # kluis vrijgeven
+def kluisVrijgeven():
+    """Kluis geassocieerd met OV nummer vrijgeven en verwijderen uit bestand."""
     kluisDict = dictionary()
     beginSchermTopTitel['text'] = ''
     beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
@@ -82,7 +87,8 @@ def kluisVrijgeven():  # kluis vrijgeven
     with open('FietsStalling.txt', 'r+') as readFile:
         for kluis in kluisDict:
             try:
-                if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
+                if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:  # kluis zoeken
+                    # in dictionary
                     kluisDict[kluis] = None
                     beginSchermTitel['text'] = 'Kluis nummer ' + str(kluis) + ' is vrijgegeven'
                     readFile.truncate(0)
@@ -90,7 +96,7 @@ def kluisVrijgeven():  # kluis vrijgeven
                     for item in kluisDict:  # bestand updaten (vrijgegeven kluis verwijderen)
                         if kluisDict[item] is not None:
                             readFile.write(str(item) + '; ' + ''.join(str(kluisDict[item])).strip('{}()\'\'')
-                                           .replace('\'', '') + '\n')
+                                           .replace('\'', '') + '\n')  # bezette kluizen naar bestand schrijven
                     beginSchermEntry.delete(0, END)
                     return
             except ValueError:
@@ -100,14 +106,17 @@ def kluisVrijgeven():  # kluis vrijgeven
         return
 
 
-def kluisInfo():  # huidige kosten opvragen
+def kluisInfo():
+    """Geef huidige kosten weer van kluis geassocieerd met OV nummer."""
     kluisDict = dictionary()
     beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
 
     for kluis in kluisDict:
         try:
-            if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:
-                beginSchermTopTitel['text'] = fietsStalTijd(kluisDict[kluis][0])
+            if kluisDict[kluis] is not None and int(beginSchermEntry.get()) in kluisDict[kluis]:  # kluis zoeken in
+                # dictionary
+                beginSchermTopTitel['text'] = fietsStalTijd(kluisDict[kluis][1])  # functie fietsStalTijd op kluis
+                # aanroepen
                 beginSchermTitel['text'] = 'De huidige kosten zijn €' + str(prijs(kluisDict[kluis][0]))
                 beginSchermEntry.delete(0, END)
                 return
@@ -118,7 +127,8 @@ def kluisInfo():  # huidige kosten opvragen
     return
 
 
-def prijs(begintijd):  # prijs berekenen
+def prijs(begintijd):
+    """Bereken huidige kosten gebaseerd op tijdsduur."""
     starttijd = datetime.strptime(begintijd, '%d-%m-%Y %H:%M')  # begintijd in juiste format
     huidigeTijd = datetime.strptime(time.strftime('%d-%m-%Y %H:%M'), '%d-%m-%Y %H:%M')  # huidige tijd opvragen
     dagVerschil = (huidigeTijd - starttijd).days  # verschil in dagen
@@ -130,7 +140,9 @@ def prijs(begintijd):  # prijs berekenen
     return totaalPrijs
 
 
-def fietsStalTijd(ovnummer):  # tijdsduur opvragen
+def fietsStalTijd(ovnummer):
+    """Bereken huidige tijdsduur door middel van stalTijd functie met geassocieerde tijd bij ingevoerd OV nummer
+    als parameter."""
     kluisDict = dictionary()
     beginSchermTopTitel['text'] = ''
 
@@ -144,7 +156,8 @@ def fietsStalTijd(ovnummer):  # tijdsduur opvragen
             return str(huidigeTijdsDuur)
 
 
-def stalTijd(begintijd):  # prijs berekenen
+def stalTijd(begintijd):
+    """Bereken huidige tijdsduur op basis van tijd geassocieerd met kluis en huidige tijd."""
     starttijd = datetime.strptime(begintijd, '%d-%m-%Y %H:%M')  # begintijd in juiste format
     huidigeTijd = datetime.strptime(time.strftime('%d-%m-%Y %H:%M'), '%d-%m-%Y %H:%M')  # huidige tijd opvragen
     dagVerschil = (huidigeTijd - starttijd).days  # verschil in dagen
@@ -153,19 +166,19 @@ def stalTijd(begintijd):  # prijs berekenen
     secMin = secondeVerschil / 60  # seconden naar minuten omrekenen
     minuten = int(dagMin + secMin)  # totaal aantal minuten
     uurMin = str(timedelta(minutes=minuten))[:-3]
-    if 'day' not in uurMin:
+    if 'day' not in uurMin:  # wanneer tijdsduur minder dan een dag is
         tijdSplit = uurMin.split(':')
         uren = tijdSplit[0]
         if tijdSplit[1] != '00':
-            minuten = tijdSplit[1].lstrip('0')
+            minuten = tijdSplit[1].lstrip('0')  # overbodige eerste '0' verwijderen
         else:
             minuten = tijdSplit[1][:1]
-        if uren == '0':
+        if uren == '0':  # wanneer aantal uren 0 is uren niet printen
             uurTekst = ''
             uren = ''
         else:
             uurTekst = ' uur en '
-        if minuten == '1':
+        if minuten == '1':  # 'minuut' printen in plaats van 'minuten' bij 1 minuut
             tijdsDuur = 'Je fiets is ' + uren + uurTekst + minuten + ' minuut gestald'
         else:
             tijdsDuur = 'Je fiets is ' + uren + uurTekst + minuten + ' minuten gestald'
@@ -176,15 +189,15 @@ def stalTijd(begintijd):  # prijs berekenen
         dagen = tijdSplit[0]
         uren = urenMinuten[0]
         if urenMinuten[1] != '00':
-            minuten = urenMinuten[1].lstrip('0')
+            minuten = urenMinuten[1].lstrip('0')  # overbodige eerste '0' verwijderen
         else:
             minuten = urenMinuten[1][:1]
-        if uren == '0':
+        if uren == '0':  # wanneer aantal uren 0 is uren niet printen
             uurTekst = ''
             uren = ''
         else:
             uurTekst = ' uur en '
-        if 'days' in uurMin:
+        if 'days' in uurMin:  # 'dagen' printen in plaats van 'dag' bij 1 dag
             if minuten == '1':
                 tijdsDuur = 'Je fiets is ' + dagen + ' dagen, ' + uren + uurTekst + minuten + ' minuut gestald'
             else:
@@ -199,11 +212,12 @@ def stalTijd(begintijd):  # prijs berekenen
 
 
 def beheerderOpenen():
+    """Kluis openen gebaseerd op ingevoerd kluisnummer."""
     beheerderEntry.get()
     kluisDict = dictionary()
 
     try:
-        if kluisDict[int(beheerderEntry.get())] is not None:
+        if kluisDict[int(beheerderEntry.get())] is not None:  # wanneer kluis bezet is
             beheerderTitel['text'] = 'Kluis nummer ' + beheerderEntry.get() + ' is geopend'
         else:
             beheerderTitel['text'] = 'Deze kluis is niet bezet'
@@ -214,18 +228,19 @@ def beheerderOpenen():
 
 
 def beheerderVrijgeven():
+    """Kluis vrijgeven gebaseerd op ingevoerd kluisnummer."""
     kluisDict = dictionary()
     with open('FietsStalling.txt', 'r+') as readFile:
         try:
-            if kluisDict[int(beheerderEntry.get())] is not None:
-                kluisDict[int(beheerderEntry.get())] = None
+            if kluisDict[int(beheerderEntry.get())] is not None:  # wanneer kluis bezet is
+                kluisDict[int(beheerderEntry.get())] = None  # kluis waarde verwijderen uit dictionary
                 beheerderTitel['text'] = 'Kluis nummer ' + beheerderEntry.get() + ' is vrijgegeven'
                 readFile.truncate(0)
                 readFile.seek(0)
                 for item in kluisDict:  # bestand updaten (vrijgegeven kluis verwijderen)
                     if kluisDict[item] is not None:
                         readFile.write(str(item) + '; ' + ''.join(str(kluisDict[item])).strip('{}()\'\'')
-                                       .replace('\'', '') + '\n')
+                                       .replace('\'', '') + '\n')  # bezette kluizen naar bestand schrijven
                 return
             else:
                 beheerderTitel['text'] = 'Deze kluis is niet bezet'
@@ -234,12 +249,27 @@ def beheerderVrijgeven():
             return
 
 
-def kluisInfoTg(ovnummer):  # kosten opvragen met bot
+def tijd(update, context):
+    """Huidige tijdsduur opvragen aan Telegram bot door middel van fietsStalTijd functie."""
+    msgContent = str(update['message']['text']).split(' ')
+    OVNummer = int(msgContent[1])  # OV nummer uit bericht lezen
+    context.bot.send_message(chat_id=update.effective_chat.id, text=fietsStalTijd(OVNummer))
+
+
+def prijsTg(update, context):
+    """Huidige kosten opvragen aan Telegram bot door middel van kluisInfoTg functie."""
+    msgContent = str(update['message']['text']).split(' ')
+    OVNummer = int(msgContent[1])  # OV nummer uit bericht lezen
+    context.bot.send_message(chat_id=update.effective_chat.id, text=kluisInfoTg(OVNummer))
+
+
+def kluisInfoTg(ovnummer):
+    """Huidige kosten opvragen aan Telegram bot door middel van prijs functie."""
     kluisDict = dictionary()
 
     for kluis in kluisDict:
         try:
-            if kluisDict[kluis] is not None and ovnummer in kluisDict[kluis]:
+            if kluisDict[kluis] is not None and ovnummer in kluisDict[kluis]:  # kluis zoeken in dictionary
                 huidigeKosten = 'De huidige kosten zijn €' + str(prijs(kluisDict[kluis][0]))
                 return huidigeKosten
         except ValueError:
@@ -247,23 +277,13 @@ def kluisInfoTg(ovnummer):  # kosten opvragen met bot
             return huidigeKosten
 
 
-def tijd(update, context):  # tijd opvragen bot
-    msgContent = str(update['message']['text']).split(' ')
-    OVNummer = int(msgContent[1])
-    context.bot.send_message(chat_id=update.effective_chat.id, text=fietsStalTijd(OVNummer))
-
-
-def prijsTg(update, context):  # prijs opvragen bot
-    msgContent = str(update['message']['text']).split(' ')
-    OVNummer = int(msgContent[1])
-    context.bot.send_message(chat_id=update.effective_chat.id, text=kluisInfoTg(OVNummer))
-
-
-def unknown(update, context):  # onbekend bot commando
+def unknown(update, context):
+    """Aangeven wanneer een commando niet herkend wordt door Telegram bot."""
     context.bot.send_message(chat_id=update.effective_chat.id, text="Sorry, dat commando is onbekend.")
 
 
-def toonBeginScherm():  # beginscherm herladen
+def toonBeginScherm():
+    """Beginscherm tonen of herladen."""
     beginSchermTerug.grid_forget()
     beheerderScherm.grid_forget()
     beginSchermTopTitel['text'] = ''
@@ -272,11 +292,13 @@ def toonBeginScherm():  # beginscherm herladen
     beginScherm.grid()
 
 
-def toonBeheerderScherm():  # beheerderscherm tonen
-    if beginSchermEntry.get() == '1234':
+def toonBeheerderScherm():
+    """Beheerderscherm tonen."""
+    if beginSchermEntry.get() == '1234123412341234':
         beginScherm.grid_forget()
         beheerderScherm.grid()
         beginSchermTerug.grid(pady=3, padx=(10, 10), sticky='w', row=1)
+        beheerderTitel['text'] = 'Vul een kluisnummer in'
     else:
         toonBeginScherm()
 
@@ -313,14 +335,6 @@ beginSchermTerug = Button(master=beginScherm,
                           height=2,
                           command=toonBeginScherm)
 
-import random
-
-
-def testKnop():
-    beginSchermEntry.delete(0, END)
-    beginSchermEntry.insert(0, str(random.randrange(1000000000000000, 9999999999999999)))
-
-
 beginSchermBeheerKnop = Button(master=beginScherm,
                                text='Beheerder',
                                background='#003091',
@@ -330,16 +344,6 @@ beginSchermBeheerKnop = Button(master=beginScherm,
                                height=2,
                                command=toonBeheerderScherm)
 beginSchermBeheerKnop.grid(pady=3, padx=(10, 10), sticky='n', row=0, column=0, columnspan=3)
-
-beginSchermTest = Button(master=beginScherm,
-                         text='Test',
-                         background='#003091',
-                         foreground='white',
-                         font=('Arial', '12', 'bold'),
-                         width=7,
-                         height=2,
-                         command=testKnop)
-beginSchermTest.grid(pady=3, padx=(10, 10), sticky='e', row=1, column=2)
 
 beginSchermTopTitel = Label(master=beginScherm,
                             text='',
@@ -366,7 +370,7 @@ beginSchermInstructie = Label(master=beginScherm,
                               font=('Arial', '18', 'bold'))
 beginSchermInstructie.grid(row=2, column=0, columnspan=3)
 
-beginSchermEntry = Entry(master=beginScherm,  # entry veld
+beginSchermEntry = Entry(master=beginScherm,
                          font=('Arial', '20', 'bold'))
 beginSchermEntry.grid(padx=111, pady=(6, 20), row=3, column=0, columnspan=3, ipady=5)
 
@@ -400,7 +404,7 @@ beginSchermKluisVrijgeven = Button(master=beginScherm,
                                    command=kluisVrijgeven)
 beginSchermKluisVrijgeven.grid(pady=3, padx=3, row=5, column=0)
 
-beginSchermInfo = Button(master=beginScherm,  # knop zoeken
+beginSchermInfo = Button(master=beginScherm,
                          text='Huidige prijs',
                          background='#003091',
                          foreground='white',
@@ -434,7 +438,7 @@ beheerderTitel = Label(master=beheerderScherm,
                        height=4)
 beheerderTitel.grid(row=1, column=0, columnspan=3)
 
-beheerderEntry = Entry(master=beheerderScherm,  # entry veld
+beheerderEntry = Entry(master=beheerderScherm,
                        font=('Arial', '20', 'bold'))
 beheerderEntry.grid(padx=111, pady=(6, 20), row=3, column=0, columnspan=3, ipady=5)
 
@@ -458,7 +462,7 @@ beheerderKluisVrijgeven = Button(master=beheerderScherm,
                                  command=beheerderVrijgeven)
 beheerderKluisVrijgeven.grid(pady=3, padx=3, row=5, column=2)
 
-try:
+try:  # tekstbestand aanmaken als het nog niet bestaat
     open('FietsStalling.txt', 'x')
     open('FietsStalling.txt', 'x').close()
 except FileExistsError:
