@@ -458,5 +458,11 @@ beheerderKluisVrijgeven = Button(master=beheerderScherm,
                                  command=beheerderVrijgeven)
 beheerderKluisVrijgeven.grid(pady=3, padx=3, row=5, column=2)
 
+try:
+    open('FietsStalling.txt', 'x')
+    open('FietsStalling.txt', 'x').close()
+except FileExistsError:
+    pass
+
 toonBeginScherm()
 root.mainloop()
